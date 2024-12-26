@@ -15,7 +15,7 @@ class CreateLikesTable extends Migration
     {
         Schema::create('likes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->string('user_id'); // FirebaseのUIDを保存するためにstring型を使用
             $table->foreignId('post_id')->nullable()->constrained()->cascadeOnDelete();
             $table->timestamps();
         });

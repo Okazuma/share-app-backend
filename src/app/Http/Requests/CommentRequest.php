@@ -24,9 +24,9 @@ class CommentRequest extends FormRequest
     public function rules()
     {
         return [
-            'post_id' => 'required|exists:post,id', // 関連する投稿が存在するか
+            // 'user_id' => ['required', 'string', new FirebaseUserExists($this->auth)],  // Firebaseユーザーの存在確認
+            'post_id' => 'required|integer|exists:posts,id', // 関連する投稿が存在するか
             'message' => 'required|string|max:255', // コメントの内容
-
         ];
     }
 }

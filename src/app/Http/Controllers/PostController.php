@@ -5,12 +5,27 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use App\Http\Requests\PostRequest;
+use Illuminate\Support\Facades\Log;
 
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Auth as FirebaseAuth;
 
 class PostController extends Controller
 {
+    protected $auth;
+
+    public function __construct()
+    {
+        $factory = (new Factory)
+            ->withServiceAccount(env('FIREBASE_CREDENTIALS'))
+            ->withProjectId(env('FIREBASE_PROJECT_ID'));
+
+        $this->auth = $factory->createAuth();
+    }
+
+
     // 投稿一覧の取得
-    public function index()
+    public function index(Request $request)
     {
         $posts = Post::all();
         return response()->json($posts);
@@ -29,6 +44,8 @@ class PostController extends Controller
     {
         // トークンを取得して検証
         $token = $request->bearerToken();
+        \Log::info('Received token: ' . $token);
+
         $verifiedIdToken = $this->auth->verifyIdToken($token);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
@@ -62,7 +79,7 @@ class PostController extends Controller
 
 
     // 投稿の削除
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
         // トークンを取得して検証
         $token = $request->bearerToken();

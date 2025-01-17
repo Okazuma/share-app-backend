@@ -41,6 +41,9 @@ Route::delete('/posts/{id}',[PostController::class,'destroy']);
 Route::get('/comments/post/{postId}', [CommentController::class, 'getCommentByPost']);
 // コメントの作成
 Route::post('/comments', [CommentController::class, 'store']);
+// コメントの削除
+Route::delete('/comments/{id}', [CommentController::class, 'destroy']);
+
 
 
 

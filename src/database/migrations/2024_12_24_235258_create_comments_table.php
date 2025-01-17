@@ -16,7 +16,7 @@ class CreateCommentsTable extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->string('user_id'); // FirebaseのUIDを保存するためにstring型を使用
-            $table->foreignId('post_id')->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignId('post_id')->constrained()->cascadeOnDelete();
             $table->text('message');
             $table->timestamps();
         });

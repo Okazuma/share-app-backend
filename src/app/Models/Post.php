@@ -8,6 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     use HasFactory;
+
+    // テーブル名を指定
+    protected $table = 'posts';
+
     protected $fillable = [
         'user_id','content'
     ];

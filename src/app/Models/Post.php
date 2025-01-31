@@ -9,9 +9,6 @@ class Post extends Model
 {
     use HasFactory;
 
-    // テーブル名を指定
-    protected $table = 'posts';
-
     protected $fillable = [
         'user_id','content'
     ];
@@ -21,8 +18,8 @@ class Post extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function likedByUsers()
+    public function likes()
     {
-        return $this->belongsToMany(User::class,'likes');
+        return $this->hasMany(Like::class);
     }
 }

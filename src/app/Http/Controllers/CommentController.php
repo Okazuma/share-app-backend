@@ -26,7 +26,7 @@ class CommentController extends Controller
 
 
     // 特定の投稿に関連するコメントを取得
-    public function getCommentByPost($postId)
+    public function index($postId)
     {
         $comments = Comment::where('post_id',$postId)->get();
         return response()->json($comments);

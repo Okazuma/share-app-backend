@@ -25,24 +25,36 @@ class PostController extends Controller
 
 
     // 投稿一覧の取得
-    public function index(Request $request)
+    public function index()
     {
-        $posts = Post::all();
+        $posts = Post::withCount('likes')->get();
         return response()->json($posts);
     }
 
 
+
     // 特定の投稿を取得
-    public function show($id)
-    {
-        return Post::findOrFail($id);
+    // public function show($id)
+    // {
+    //     return Post::findOrFail($id);
+    // }
+
+    public function show($postId)
+{
+    $post = Post::withCount('likes')->find($postId);
+
+    if (!$post) {
+        return response()->json(['message' => '投稿が見つかりません'], 404);
     }
+
+    return response()->json($post);
+}
+
 
 
     // 投稿の作成（追加）
     public function store(PostRequest $request)
     {
-        // トークンを取得して検証
         $token = $request->bearerToken();
         \Log::info('Received token: ' . $token);
 
@@ -50,43 +62,51 @@ class PostController extends Controller
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
         $post = Post::create([
-            'user_id' => $firebaseUid, // Firebase UIDをuser_idに保存
-            'content' => $request->validated()['content'], // バリデート済みデータ
+            'user_id' => $firebaseUid,
+            'content' => $request->validated()['content'],
         ]);
-        return response()->json($post,201);
+
+        return response()->json([
+            'id' => $post->id,
+            'content' => $post->content,
+            'user_id' => $post->user_id,
+            'likes' => 0,
+        ]);
     }
+
 
 
     // 投稿の更新
     public function update(PostRequest $request,$id)
     {
-        // トークンを取得して検証
         $token = $request->bearerToken();
         $verifiedIdToken = $this->auth->verifyIdToken($token);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
         $post = Post::findOrFail($id);
+
         // 自分の投稿のみ編集可能にする
         if ($post->user_id !== $firebaseUid) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         $post->update([
-            'content' => $request->validated()['content'], // バリデート済みデータ
+            'content' => $request->validated()['content'],
         ]);
         return response()->json($post,200);
     }
 
 
+
     // 投稿の削除
     public function destroy(Request $request,$id)
     {
-        // トークンを取得して検証
         $token = $request->bearerToken();
         $verifiedIdToken = $this->auth->verifyIdToken($token);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
         $post = Post::findOrFail($id);
+
         // 自分の投稿のみ削除可能にする
         if ($post->user_id !== $firebaseUid) {
             return response()->json(['error' => 'Unauthorized'], 403);

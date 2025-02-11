@@ -24,31 +24,28 @@ class PostController extends Controller
     }
 
 
+
     // 投稿一覧の取得
     public function index()
     {
-        $posts = Post::withCount('likes')->get();
+        $posts = Post::withCount('likes')
+                        ->orderBy('created_at','desc')
+                        ->get();
         return response()->json($posts);
     }
 
 
 
-    // 特定の投稿を取得
-    // public function show($id)
-    // {
-    //     return Post::findOrFail($id);
-    // }
-
     public function show($postId)
-{
-    $post = Post::withCount('likes')->find($postId);
+    {
+        $post = Post::withCount('likes')->find($postId);
 
-    if (!$post) {
-        return response()->json(['message' => '投稿が見つかりません'], 404);
+        if (!$post) {
+            return response()->json(['message' => '投稿が見つかりません'], 404);
+        }
+
+        return response()->json($post);
     }
-
-    return response()->json($post);
-}
 
 
 
@@ -71,6 +68,7 @@ class PostController extends Controller
             'content' => $post->content,
             'user_id' => $post->user_id,
             'likes' => 0,
+            'created_at' => $post->created_at,
         ]);
     }
 

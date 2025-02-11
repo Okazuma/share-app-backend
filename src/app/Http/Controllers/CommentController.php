@@ -26,11 +26,19 @@ class CommentController extends Controller
 
 
     // 特定の投稿に関連するコメントを取得
-    public function index($postId)
+    public function index()
     {
-        $comments = Comment::where('post_id',$postId)->get();
+        $comments = Comment::all();
         return response()->json($comments);
     }
+
+
+    public function show($postId)
+    {
+        $comments = Comment::where('post_id', $postId)->get();
+        return response()->json($comments);
+    }
+
 
 
 
@@ -44,14 +52,14 @@ class CommentController extends Controller
         $post = Post::find($postId);
 
         if (!$post) {
-        return response()->json(['error' => '指定された投稿が存在しません'], 404);
+            return response()->json(['error' => '指定された投稿が存在しません'], 404);
         }
 
         try{
             $token = $request->bearerToken();
             if (!$token) {
-                    return response()->json(['error' => 'トークンが提供されていません'], 401);
-                }
+                return response()->json(['error' => 'トークンが提供されていません'], 401);
+            }
 
             $verifiedIdToken = $this->auth->verifyIdToken($token);
 
@@ -71,12 +79,12 @@ class CommentController extends Controller
             ]);
 
             return response()->json($comment, 201);
-        }catch (\Kreait\Firebase\Exception\Auth\InvalidToken $e) {
+        } catch (\Kreait\Firebase\Exception\Auth\InvalidIdToken $e) {
             \Log::error('Firebase認証エラー: ' . $e->getMessage());
-                return response()->json(['error' => '無効なトークンです'], 401);
-            } catch (\Exception $e) {
-                \Log::error('コメント保存エラー: ' . $e->getMessage());
-                return response()->json(['error' => 'コメントの保存に失敗しました', 'details' => $e->getMessage()], 500);
+            return response()->json(['error' => '無効なトークンです'], 401);
+        }catch(\Exception $e) {
+            \Log::error('コメント保存エラー: ' . $e->getMessage());
+            return response()->json(['error' => 'コメントの保存に失敗しました'], 500);
         }
     }
 

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Comment;
-use App\Models\User;
 use App\Models\Post;
 
 
@@ -17,20 +16,36 @@ class CommentSeeder extends Seeder
      */
     public function run()
     {
-        $user1 = User::find(1);
-        $post1 = Post::find(1);
-        Comment::create([
-            'user_id' => $user1->id,
-            'post_id' => $post1->id,
-            'message' => 'テストメッセージ1です!テストメッセージ1です!'
-        ]);
+        $firebaseUser1 = 'PDQAQbQH7YM1FAwy2DzAis2ryJm2';
+        $firebaseUser2 = 'dI9Z7ToyjQUcpxh2v4Dq23Ti9813';
 
-        $user2 = User::find(2);
+        $post1 = Post::find(1);
         $post2 = Post::find(2);
-        Comment::create([
-            'user_id' => $user2->id,
-            'post_id' => $post2->id,
-            'message' => 'テストメッセージ2です!テストメッセージ2です!'
-        ]);
+
+        if ($post1 && $post2){
+            Comment::create([
+                'user_id' => $firebaseUser1,
+                'post_id' => $post1->id,
+                'message' => '投稿1に対するテスト用のコメントです!'
+            ]);
+
+            Comment::create([
+                'user_id' => $firebaseUser2,
+                'post_id' => $post1->id,
+                'message' => '投稿1に対するテスト用のコメントです!'
+            ]);
+
+            Comment::create([
+                'user_id' => $firebaseUser1,
+                'post_id' => $post2->id,
+                'message' => '投稿1に対するテスト用のコメントです!'
+            ]);
+
+            Comment::create([
+                'user_id' => $firebaseUser2,
+                'post_id' => $post2->id,
+                'message' => '投稿1に対するテスト用のコメントです!'
+            ]);
+        }
     }
 }

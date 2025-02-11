@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Post;
-use App\Models\User;
 
 class PostSeeder extends Seeder
 {
@@ -15,16 +14,17 @@ class PostSeeder extends Seeder
      */
     public function run()
     {
-        $user1 = User::find(1);
+        $firebaseUser1 = 'PDQAQbQH7YM1FAwy2DzAis2ryJm2';
+        $firebaseUser2 = 'dI9Z7ToyjQUcpxh2v4Dq23Ti9813';
+
         Post::create([
-            'user_id' => $user1->id,
-            'content' => 'テスト1テスト1テスト1テスト1テスト1'
+            'user_id' => $firebaseUser1,
+            'content' => '投稿テスト用データ１です'
         ]);
 
-        $user2 = User::find(2);
         Post::create([
-            'user_id' => $user2->id,
-            'content' => 'テスト2テスト2テスト2テスト2テスト2'
+            'user_id' => $firebaseUser2,
+            'content' => '投稿テスト用データ２です'
         ]);
     }
 }

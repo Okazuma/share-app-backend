@@ -25,7 +25,7 @@ class CommentController extends Controller
     }
 
 
-    // 特定の投稿に関連するコメントを取得
+
     public function index()
     {
         $comments = Comment::all();
@@ -42,7 +42,6 @@ class CommentController extends Controller
 
 
 
-    // コメントを作成
     public function store(CommentRequest $request)
     {
         $validated = $request->validated();
@@ -65,7 +64,6 @@ class CommentController extends Controller
 
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
-            // user_id, post_id, message をログに出力
             \Log::info('コメント情報:', [
                 'user_id' => $firebaseUid,
                 'post_id' => $postId,
@@ -90,16 +88,15 @@ class CommentController extends Controller
 
 
 
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request,$postId)
     {
-        Log::info('削除リクエスト受信:', ['id' => $id]);
-    // 削除処理
+        Log::info('削除リクエスト受信:', ['postId' => $postId]);
         try {
             $token = $request->bearerToken();
             $verifiedIdToken = $this->auth->verifyIdToken($token);
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
-            $comment = Comment::findOrFail($id);
+            $comment = Comment::findOrFail($postId);
             Log::info('取得したコメント:', ['comment' => $comment]);
 
             if ($comment->user_id !== $firebaseUid) {

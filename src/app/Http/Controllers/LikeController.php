@@ -38,7 +38,6 @@ class LikeController extends Controller
             }
         }
 
-        // ユーザーがログインしている場合、そのユーザーのいいね情報を取得
     if ($userId) {
         $likes = Like::where('user_id', $userId)->with('post')->get();
 
@@ -50,8 +49,6 @@ class LikeController extends Controller
 
 
 
-
-    // Likeを追加
     public function store(Request $request)
     {
         $userId = $request->input('user_id');
@@ -70,7 +67,6 @@ class LikeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // 同じユーザーがすでにこの投稿にいいねしていないか確認
         $existingLike = Like::where('user_id', $uid)
                             ->where('post_id', $request->input('post_id'))
                             ->first();
@@ -88,7 +84,6 @@ class LikeController extends Controller
 
 
 
-    // Likeを削除
     public function destroy(Request $request)
     {
         $token = $request->bearerToken();
@@ -100,7 +95,6 @@ class LikeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // いいねの存在を確認（削除対象の「いいね」を取得）
         $like = Like::where('user_id', $uid)
                     ->where('post_id', $request->input('post_id'))
                     ->first();
@@ -109,7 +103,6 @@ class LikeController extends Controller
             return response()->json(['error' => 'Like not found'], 404);
         }
 
-        // 「いいね」を削除
         $like->delete();
 
         return response()->json(['message' => 'Like removed'], 200);

@@ -25,7 +25,6 @@ class PostController extends Controller
 
 
 
-    // 投稿一覧の取得
     public function index()
     {
         $posts = Post::withCount('likes')
@@ -49,7 +48,6 @@ class PostController extends Controller
 
 
 
-    // 投稿の作成（追加）
     public function store(PostRequest $request)
     {
         $token = $request->bearerToken();
@@ -74,38 +72,41 @@ class PostController extends Controller
 
 
 
-    // 投稿の更新
-    public function update(PostRequest $request,$id)
+    public function update(PostRequest $request,$postId)
     {
-        $token = $request->bearerToken();
-        $verifiedIdToken = $this->auth->verifyIdToken($token);
-        $firebaseUid = $verifiedIdToken->claims()->get('sub');
+        try {
 
-        $post = Post::findOrFail($id);
+            $token = $request->bearerToken();
+            $verifiedIdToken = $this->auth->verifyIdToken($token);
+            $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
-        // 自分の投稿のみ編集可能にする
-        if ($post->user_id !== $firebaseUid) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            $post = Post::findOrFail($postId);
+
+            if ($post->user_id !== $firebaseUid) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            $post->update($request->validated());
+
+            return response()->json([
+                'message'=> 'Post update successfully',
+                'post' => $post
+            ],200);
+        }catch(\Exception $e){
+            return response()->json(['error' => 'Something went wrong'],500);
         }
-
-        $post->update([
-            'content' => $request->validated()['content'],
-        ]);
-        return response()->json($post,200);
     }
 
 
 
-    // 投稿の削除
-    public function destroy(Request $request,$id)
+    public function destroy(Request $request,$postId)
     {
         $token = $request->bearerToken();
         $verifiedIdToken = $this->auth->verifyIdToken($token);
         $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
-        $post = Post::findOrFail($id);
+        $post = Post::findOrFail($postId);
 
-        // 自分の投稿のみ削除可能にする
         if ($post->user_id !== $firebaseUid) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }

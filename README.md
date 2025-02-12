@@ -1,6 +1,6 @@
 ## アプリケーション名
     share-app API  (Twitter風投稿アプリのバックエンド)
-<img width="650" src="https://github.com/user-attachments/assets/eb64bbf4-5ec6-44a9-bc30-557803cb39f3">
+<img width="650" src="https://github.com/user-attachments/assets/d1b63a9d-a6e4-409c-8b20-b1a47c6892fc">
 
 
 
@@ -42,13 +42,15 @@ http://localhost/
 
 
 ## 機能一覧
-    - ユーザー管理
+    - ユーザー管理 (firebase Authentication)
         ユーザーの登録・認証
         ユーザー情報の取得
 
     - 投稿管理
+        投稿の全体取得（`GET /api/posts`）
+        投稿を個別に取得（`GET /api/posts/{postId}`）
         投稿の作成（`POST /api/posts`）
-        投稿の取得（`GET /api/posts/{postId}`）
+        投稿の編集（`PUT /api/posts/{postId}`）
         投稿の削除（`DELETE /api/posts/{postId}`）
 
     - コメント管理
@@ -63,6 +65,7 @@ http://localhost/
 
     - その他
         ユーザー別の各データ取得
+        フォームリクエストによるバリデーション
 
 
 
@@ -102,19 +105,19 @@ http://localhost/
 
 
 ## テーブル設計
-<img width="650" src="">
+<img width="650" src="https://github.com/user-attachments/assets/f017f6b7-3575-4df0-86e6-51dfe383c4b9">
 
 
 
 
 ## ER図
-<img width="650" src="https://github.com/user-attachments/assets/d3f33f1d-2b7b-43ff-9e42-7bf0072f4daf">
+<img width="650" src="https://github.com/user-attachments/assets/e313a860-bb03-42e9-81db-e0024f5cd081">
 
 
 
 
 ## dockerビルド
-    1 git clone リンク  
+    1 git clone リンク  https://github.com/Okazuma/share-app-backend.git
 
     2 docker compose up -d --build
 

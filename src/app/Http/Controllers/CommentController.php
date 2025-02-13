@@ -36,7 +36,18 @@ class CommentController extends Controller
     public function show($postId)
     {
         $comments = Comment::where('post_id', $postId)->get();
-        return response()->json($comments);
+
+        $commentsWithUserNames = $comments->map(function ($comment) {
+            try {
+                // Firebase から `user_id` に紐づくユーザー情報を取得
+                $user = $this->auth->getUser($comment->user_id);
+                $comment->user_name = $user->displayName ?? "Unknown";
+            } catch (\Exception $e) {
+                $comment->user_name = "Unknown";
+            }
+            return $comment;
+        });
+        return response()->json($commentsWithUserNames);
     }
 
 
@@ -64,8 +75,14 @@ class CommentController extends Controller
 
             $firebaseUid = $verifiedIdToken->claims()->get('sub');
 
+            $userName = trim($request->input('user_name', 'Unknown'));
+            if ($userName === '') {
+                $userName = 'Unknown';
+            }
+
             \Log::info('コメント情報:', [
                 'user_id' => $firebaseUid,
+                'user_name' => $userName,
                 'post_id' => $postId,
                 'message' => $validated['message'],
             ]);
@@ -76,7 +93,15 @@ class CommentController extends Controller
                 'message' => $validated['message'],
             ]);
 
-            return response()->json($comment, 201);
+            return response()->json([
+                'id' => $comment->id,
+                'user_id' => $comment->user_id,
+                'user_name' => $userName, // 🔥 フロントエンドで使えるようにする
+                'post_id' => $comment->post_id,
+                'message' => $comment->message,
+                'created_at' => $comment->created_at,
+            ], 201);
+
         } catch (\Kreait\Firebase\Exception\Auth\InvalidIdToken $e) {
             \Log::error('Firebase認証エラー: ' . $e->getMessage());
             return response()->json(['error' => '無効なトークンです'], 401);

@@ -8,6 +8,7 @@ use App\Models\Post;
 use Firebase\Auth\Token\Exception\InvalidToken;
 use Kreait\Firebase\Auth as FirebaseAuth;
 use Kreait\Firebase\Factory;
+use Illuminate\Support\Facades\Cache;
 
 class LikeController extends Controller
 {

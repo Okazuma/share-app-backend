@@ -26,5 +26,10 @@ class PostSeeder extends Seeder
             'user_id' => $firebaseUser2,
             'content' => '投稿テスト用データ２です'
         ]);
+
+        Post::create([
+            'user_id' => $firebaseUser1,
+            'content' => '投稿テスト用データ3です'
+        ]);
     }
 }

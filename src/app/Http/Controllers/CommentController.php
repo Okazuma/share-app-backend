@@ -8,6 +8,9 @@ use App\Models\Post;
 use App\Http\Requests\CommentRequest;
 use Kreait\Firebase\Auth as FirebaseAuth;
 use Kreait\Firebase\Factory;
+use Kreait\Firebase\Auth\Uid;
+// use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class CommentController extends Controller
@@ -33,20 +36,43 @@ class CommentController extends Controller
     }
 
 
+
+
     public function show($postId)
     {
+        $start = microtime(true);
         $comments = Comment::where('post_id', $postId)->get();
+        $userIds = $comments->pluck('user_id')->unique()->toArray();
 
-        $commentsWithUserNames = $comments->map(function ($comment) {
+        $cachedUserNames = Cache::get('user_names', []);
+        Log::info(' 🔥 コメントユーザーキャッシュデータ: ' . json_encode($cachedUserNames));
+
+        $missingUserIds = array_diff($userIds, array_keys($cachedUserNames));
+        \Log::info(" 🔥 コメントFirebase 取得前: " . (microtime(true) - $start) . "秒");
+
+        if (!empty($missingUserIds)) {
             try {
-                // Firebase から `user_id` に紐づくユーザー情報を取得
-                $user = $this->auth->getUser($comment->user_id);
-                $comment->user_name = $user->displayName ?? "Unknown";
+                $userRecords = $this->auth->getUsers($missingUserIds);
+                \Log::info(" 🔥 コメントFirebase 取得後: " . (microtime(true) - $start) . "秒");
+
+                $newUserNames = [];
+                foreach ($userRecords as $userRecord) {
+                    $newUserNames[$userRecord->uid] = $userRecord->displayName ?? "Unknown";
+                }
+
+                $cachedUserNames = array_merge($cachedUserNames, $newUserNames);
+                Cache::put('user_names', $cachedUserNames, now()->addMinutes(10));
             } catch (\Exception $e) {
-                $comment->user_name = "Unknown";
+                return response()->json(['error' => 'ユーザー情報の取得に失敗しました: ' . $e->getMessage()], 500);
             }
+        }
+
+        $commentsWithUserNames = $comments->map(function ($comment) use ($cachedUserNames) {
+            $comment->user_name = $cachedUserNames[$comment->user_id] ?? "Unknown";
             return $comment;
         });
+        \Log::info(" 🔥 コメント全体の処理時間: " . (microtime(true) - $start) . "秒");
+
         return response()->json($commentsWithUserNames);
     }
 
@@ -96,7 +122,7 @@ class CommentController extends Controller
             return response()->json([
                 'id' => $comment->id,
                 'user_id' => $comment->user_id,
-                'user_name' => $userName, // 🔥 フロントエンドで使えるようにする
+                'user_name' => $userName,
                 'post_id' => $comment->post_id,
                 'message' => $comment->message,
                 'created_at' => $comment->created_at,

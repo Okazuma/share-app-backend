@@ -27,26 +27,34 @@ class LikeController extends Controller
 
     public function index(Request $request)
     {
-        $userId = null;
+        $startTime = microtime(true);
 
-        if ($request->bearerToken()) {
-            try {
-                $token = $request->bearerToken();
-                $verifiedIdToken = $this->auth->verifyIdToken($token);
-                $userId = $verifiedIdToken->claims()->get('sub');
-            } catch (\Kreait\Firebase\Exception\Auth\InvalidIdToken $e) {
-                $userId = null;
-            }
+        if (!$request->bearerToken()) {
+            return response()->json([]);
         }
 
-    if ($userId) {
-        $likes = Like::where('user_id', $userId)->with('post')->get();
+        try {
+            $token = $request->bearerToken();
+            $verifiedIdToken = $this->auth->verifyIdToken($token);
+            $userId = $verifiedIdToken->claims()->get('sub');
+        } catch (\Kreait\Firebase\Exception\Auth\InvalidIdToken $e) {
+            return response()->json([]);
+        }
+
+        $likes = Like::where('user_id', $userId)
+            ->with(['post:id,user_id'])
+            ->get(['id', 'post_id', 'user_id']);
+
+        $endTime = microtime(true);
+        $executionTime = $endTime - $startTime;
+
+        \Log::info("🔥 投稿一覧いいねデータ取得時間: " . $executionTime . "秒");
 
         return response()->json($likes);
     }
 
-    return response()->json([]);
-    }
+
+
 
 
 

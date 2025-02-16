@@ -21,6 +21,7 @@ class CommentSeeder extends Seeder
 
         $post1 = Post::find(1);
         $post2 = Post::find(2);
+        $post3 = Post::find(3);
 
         if ($post1 && $post2){
             Comment::create([
@@ -38,13 +39,19 @@ class CommentSeeder extends Seeder
             Comment::create([
                 'user_id' => $firebaseUser1,
                 'post_id' => $post2->id,
-                'message' => '投稿1に対するテスト用のコメントです!'
+                'message' => '投稿2に対するテスト用のコメントです!'
             ]);
 
             Comment::create([
                 'user_id' => $firebaseUser2,
                 'post_id' => $post2->id,
-                'message' => '投稿1に対するテスト用のコメントです!'
+                'message' => '投稿2に対するテスト用のコメントです!'
+            ]);
+
+            Comment::create([
+                'user_id' => $firebaseUser1,
+                'post_id' => $post3->id,
+                'message' => '投稿3に対するテスト用のコメントです!'
             ]);
         }
     }

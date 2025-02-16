@@ -1,6 +1,6 @@
 # アプリケーション名
     share-app API  (Twitter風投稿アプリのバックエンド)
-<img width="650" src="https://github.com/user-attachments/assets/d1b63a9d-a6e4-409c-8b20-b1a47c6892fc">
+<img width="650" src="https://github.com/user-attachments/assets/3e46cdf6-812d-45cc-8da4-8e6a609bff18">
 
 
 
